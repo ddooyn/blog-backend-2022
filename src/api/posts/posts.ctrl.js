@@ -54,7 +54,16 @@ export const list = async (ctx) => {
   }
 
   try {
-    const posts = await Post.find().sort({ _id: -1 }).limit(10).skip((page - 1) * 10).exec();
+    const posts = await Post.find()
+      .sort({ _id: -1 })
+      .limit(10)
+      .skip((page - 1) * 10)
+      .exec();
+    
+    // 마지막 페이지 번호를 알려주는 커스텀 HTTP 헤더 설정
+    const postCount = await Post.countDocuments().exec();
+    ctx.set('Last-Page', Math.ceil(postCount / 10));
+
     ctx.body = posts;
   } catch (e) {
     ctx.throw(500, e);
