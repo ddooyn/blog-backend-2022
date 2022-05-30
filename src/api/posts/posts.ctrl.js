@@ -45,7 +45,8 @@ export const write = async (ctx) => {
 
 export const list = async (ctx) => {
   try {
-    const posts = await Post.find().exec();
+    // 한번에 보이는 포스트 개수를 10개로 제한
+    const posts = await Post.find().sort({ _id: -1 }).limit(10).exec();
     ctx.body = posts;
   } catch (e) {
     ctx.throw(500, e);
@@ -78,7 +79,7 @@ export const remove = async (ctx) => {
 
 export const update = async (ctx) => {
   const { id } = ctx.params;
-  
+
   // write에서 사용한 schema와 비슷한데, required()가 없음
   const schema = Joi.object().keys({
     title: Joi.string(),
