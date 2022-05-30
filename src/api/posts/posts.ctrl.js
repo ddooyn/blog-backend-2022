@@ -59,12 +59,19 @@ export const list = async (ctx) => {
       .limit(10)
       .skip((page - 1) * 10)
       .exec();
-    
+
     // 마지막 페이지 번호를 알려주는 커스텀 HTTP 헤더 설정
     const postCount = await Post.countDocuments().exec();
     ctx.set('Last-Page', Math.ceil(postCount / 10));
 
-    ctx.body = posts;
+    // post 내용 출력할 때 길이 200자 제한
+    ctx.body = posts
+      .map((post) => post.toJSON())
+      .map((post) => ({
+        ...post,
+        body:
+          post.body.length < 200 ? post.body : `${post.body.slice(0, 200)}...`,
+      }));
   } catch (e) {
     ctx.throw(500, e);
   }
