@@ -58,6 +58,7 @@ export const list = async (ctx) => {
       .sort({ _id: -1 })
       .limit(10)
       .skip((page - 1) * 10)
+      .lean()
       .exec();
 
     // 마지막 페이지 번호를 알려주는 커스텀 HTTP 헤더 설정
@@ -66,7 +67,6 @@ export const list = async (ctx) => {
 
     // post 내용 출력할 때 길이 200자 제한
     ctx.body = posts
-      .map((post) => post.toJSON())
       .map((post) => ({
         ...post,
         body:
