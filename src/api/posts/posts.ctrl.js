@@ -4,6 +4,7 @@ import Joi from 'joi';
 
 const { ObjectId } = mongoose.Types;
 
+// ObjectId를 검증하는 미들웨어
 export const checkObjectId = (ctx, next) => {
   const { id } = ctx.params;
   if (!ObjectId.isValid(id)) {
@@ -14,6 +15,7 @@ export const checkObjectId = (ctx, next) => {
 };
 
 export const write = async (ctx) => {
+  // ctx.request.body(전달받은 요청 내용)를 검증
   const schema = Joi.object().keys({
     // 객체가 다음 필드를 가지고 있음을 검증
     title: Joi.string().required(), // 필수 항목
@@ -54,11 +56,12 @@ export const list = async (ctx) => {
   }
 
   try {
+    // 페이지네이션
     const posts = await Post.find()
-      .sort({ _id: -1 })
-      .limit(10)
-      .skip((page - 1) * 10)
-      .lean()
+      .sort({ _id: -1 }) // 포스트 역순으로 불러오기
+      .limit(10) // 보이는 개수 제한
+      .skip((page - 1) * 10) // 페이지 기능
+      .lean() // 데이터를 JSON 형태로 조회
       .exec();
 
     // 마지막 페이지 번호를 알려주는 커스텀 HTTP 헤더 설정
