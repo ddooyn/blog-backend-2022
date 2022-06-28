@@ -1,6 +1,7 @@
 import Joi from 'joi';
 import User from '../../models/user';
 
+// POST /api/auth/register
 export const register = async (ctx) => {
   // Request Body 검증
   const schema = Joi.object().keys({
@@ -43,6 +44,7 @@ export const register = async (ctx) => {
   }
 };
 
+// POST /api/auth/login
 export const login = async (ctx) => {
   const { username, password } = ctx.request.body;
 
@@ -77,8 +79,15 @@ export const login = async (ctx) => {
   }
 };
 
+// GET /api/auth/check
 export const check = async (ctx) => {
-  // 로그인 상태 확인
+  const { user } = ctx.state;
+  if (!user) {
+    // 로그인 중 아님
+    ctx.status = 401; // Unauthorized
+    return;
+  }
+  ctx.body = user;
 };
 
 export const logout = async (ctx) => {
