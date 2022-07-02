@@ -65,6 +65,7 @@ export const write = async (ctx) => {
   }
 };
 
+// GET /api/posts?username=&tag=&page=
 export const list = async (ctx) => {
   // query는 문자열이기 때문에 숫자로 변환
   // 값이 주어지지 않았다면 1을 기본으로 사용
@@ -75,9 +76,16 @@ export const list = async (ctx) => {
     return;
   }
 
+  const { tag, username } = ctx.query;
+  // tag, username 값이 유효하면 객체 안에 넣고, 그렇지 않으면 넣지 않음
+  const query = {
+    ...(username ? { 'user.username': username } : {}),
+    ...(tag ? { tags: tag } : {}),
+  };
+
   try {
     // 페이지네이션
-    const posts = await Post.find()
+    const posts = await Post.find(query)
       .sort({ _id: -1 }) // 포스트 역순으로 불러오기
       .limit(10) // 보이는 개수 제한
       .skip((page - 1) * 10) // 페이지 기능
@@ -85,7 +93,7 @@ export const list = async (ctx) => {
       .exec();
 
     // 마지막 페이지 번호를 알려주는 커스텀 HTTP 헤더 설정
-    const postCount = await Post.countDocuments().exec();
+    const postCount = await Post.countDocuments(query).exec();
     ctx.set('Last-Page', Math.ceil(postCount / 10));
 
     // post 내용 출력할 때 길이 200자 제한
